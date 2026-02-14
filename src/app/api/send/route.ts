@@ -30,9 +30,7 @@ const schema = z.object({
       pixel: z.uuid().optional(),
       data: anyObjectParam.optional(),
       hostname: z.string().max(100).optional(),
-      language: z.string().max(35).optional(),
       referrer: urlOrPathParam.optional(),
-      screen: z.string().max(11).optional(),
       title: z.string().optional(),
       url: urlOrPathParam.optional(),
       name: z.string().max(50).optional(),
@@ -41,9 +39,6 @@ const schema = z.object({
       userAgent: z.string().optional(),
       timestamp: z.coerce.number().int().optional(),
       id: z.string().optional(),
-      browser: z.string().optional(),
-      os: z.string().optional(),
-      device: z.string().optional(),
       lcp: z.number().nonnegative().max(60000).optional(),
       inp: z.number().nonnegative().max(60000).optional(),
       cls: z.number().nonnegative().max(100).optional(),
@@ -78,8 +73,6 @@ export async function POST(request: Request) {
       pixel: pixelId,
       link: linkId,
       hostname,
-      screen,
-      language,
       url,
       referrer,
       name,
@@ -151,14 +144,14 @@ export async function POST(request: Request) {
       await createSession({
         id: sessionId,
         websiteId: sourceId,
-        browser,
-        os,
-        device,
-        screen,
-        language,
-        country,
-        region,
-        city,
+        browser: null,
+        os: null,
+        device: null,
+        screen: null,
+        language: null,
+        country: null,
+        region: null,
+        city: null,
         distinctId: id,
         createdAt,
       });
@@ -180,11 +173,8 @@ export async function POST(request: Request) {
 
       let urlPath =
         currentUrl.pathname === '/undefined' ? '' : currentUrl.pathname + currentUrl.hash;
-      const urlQuery = currentUrl.search.substring(1);
       const urlDomain = currentUrl.hostname.replace(/^www./, '');
 
-      let referrerPath: string;
-      let referrerQuery: string;
       let referrerDomain: string;
 
       // UTM Params
@@ -202,15 +192,28 @@ export async function POST(request: Request) {
       const lifatid = currentUrl.searchParams.get('li_fat_id');
       const twclid = currentUrl.searchParams.get('twclid');
 
+      // Build filtered query string with only UTM params and click IDs
+      const filteredParams = new URLSearchParams();
+      if (utmSource) filteredParams.set('utm_source', utmSource);
+      if (utmMedium) filteredParams.set('utm_medium', utmMedium);
+      if (utmCampaign) filteredParams.set('utm_campaign', utmCampaign);
+      if (utmContent) filteredParams.set('utm_content', utmContent);
+      if (utmTerm) filteredParams.set('utm_term', utmTerm);
+      if (gclid) filteredParams.set('gclid', gclid);
+      if (fbclid) filteredParams.set('fbclid', fbclid);
+      if (msclkid) filteredParams.set('msclkid', msclkid);
+      if (ttclid) filteredParams.set('ttclid', ttclid);
+      if (lifatid) filteredParams.set('li_fat_id', lifatid);
+      if (twclid) filteredParams.set('twclid', twclid);
+
+      const urlQuery = filteredParams.toString();
+
       if (process.env.REMOVE_TRAILING_SLASH) {
         urlPath = urlPath.replace(/\/(?=(#.*)?$)/, '');
       }
 
       if (referrer) {
         const referrerUrl = new URL(referrer, base);
-
-        referrerPath = referrerUrl.pathname;
-        referrerQuery = referrerUrl.search.substring(1);
         referrerDomain = referrerUrl.hostname.replace(/^www\./, '');
       }
 
@@ -234,20 +237,20 @@ export async function POST(request: Request) {
         hostname: hostname || urlDomain,
         urlPath: safeDecodeURI(urlPath),
         urlQuery,
-        referrerPath: safeDecodeURI(referrerPath),
-        referrerQuery,
+        referrerPath: null,
+        referrerQuery: null,
         referrerDomain,
 
-        // Session
+        // Session - set to null to not collect these fields
         distinctId: id,
-        browser,
-        os,
-        device,
-        screen,
-        language,
-        country,
-        region,
-        city,
+        browser: null,
+        os: null,
+        device: null,
+        screen: null,
+        language: null,
+        country: null,
+        region: null,
+        city: null,
 
         // Events
         eventName: name,
@@ -291,14 +294,14 @@ export async function POST(request: Request) {
         urlPath,
         pageTitle: safeDecodeURIComponent(title),
         eventType: EVENT_TYPE.performance,
-        browser,
-        os,
-        device,
-        screen,
-        language,
-        country,
-        region,
-        city,
+        browser: null,
+        os: null,
+        device: null,
+        screen: null,
+        language: null,
+        country: null,
+        region: null,
+        city: null,
         lcp,
         inp,
         cls,

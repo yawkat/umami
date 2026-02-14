@@ -1,7 +1,6 @@
 (window => {
   const {
-    screen: { width, height },
-    navigator: { language, doNotTrack: ndnt, msDoNotTrack: msdnt },
+    navigator: { doNotTrack: ndnt, msDoNotTrack: msdnt },
     location,
     document,
     history,
@@ -42,7 +41,6 @@
   const host =
     hostUrl || '__COLLECT_API_HOST__' || currentScript.src.split('/').slice(0, -1).join('/');
   const endpoint = `${host.replace(/\/$/, '')}__COLLECT_API_ENDPOINT__`;
-  const screen = `${width}x${height}`;
   const eventRegex = /data-umami-event-([\w-_]+)/;
   const eventNameAttribute = `${_data}umami-event`;
   const delayDuration = 300;
@@ -63,8 +61,6 @@
 
   const getPayload = () => ({
     website,
-    screen,
-    language,
     title: document.title,
     hostname,
     url: currentUrl,
