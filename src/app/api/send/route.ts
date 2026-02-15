@@ -171,8 +171,7 @@ export async function POST(request: Request) {
       const base = hostname ? `https://${hostname}` : 'https://localhost';
       const currentUrl = new URL(url, base);
 
-      let urlPath =
-        currentUrl.pathname === '/undefined' ? '' : currentUrl.pathname + currentUrl.hash;
+      let urlPath = currentUrl.pathname === '/undefined' ? '' : currentUrl.pathname;
       const urlDomain = currentUrl.hostname.replace(/^www./, '');
 
       let referrerDomain: string;
