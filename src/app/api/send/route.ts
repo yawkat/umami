@@ -115,10 +115,7 @@ export async function POST(request: Request) {
     }
 
     // Client info
-    const { ip, userAgent, device, browser, os, country, region, city } = await getClientInfo(
-      request,
-      payload,
-    );
+    const { ip, userAgent, device, country } = await getClientInfo(request, payload);
 
     // Bot check
     if (!process.env.DISABLE_BOT_CHECK && isbot(userAgent)) {
@@ -146,10 +143,10 @@ export async function POST(request: Request) {
         websiteId: sourceId,
         browser: null,
         os: null,
-        device: null,
+        device: device,
         screen: null,
         language: null,
-        country: null,
+        country: country,
         region: null,
         city: null,
         distinctId: id,
@@ -240,14 +237,14 @@ export async function POST(request: Request) {
         referrerQuery: null,
         referrerDomain,
 
-        // Session - set to null to not collect these fields
+        // Session - only collect country and device category
         distinctId: id,
         browser: null,
         os: null,
-        device: null,
+        device: device,
         screen: null,
         language: null,
-        country: null,
+        country: country,
         region: null,
         city: null,
 
@@ -295,10 +292,10 @@ export async function POST(request: Request) {
         eventType: EVENT_TYPE.performance,
         browser: null,
         os: null,
-        device: null,
+        device,
         screen: null,
         language: null,
-        country: null,
+        country,
         region: null,
         city: null,
         lcp,
